@@ -1,0 +1,50 @@
+name: Android Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master, main ]
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Restore LFS
+        run: |
+          git lfs install
+          git lfs pull
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**','Packages/**','ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1
+
+      - name: Build Android
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          unityVersion: auto
+          targetPlatform: Android
+          androidExportType: androidPackage
+          buildName: HowToSuckAndroid
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: HowToSuck-Android
+          path: build/Android
