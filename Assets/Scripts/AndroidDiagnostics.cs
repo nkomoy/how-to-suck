@@ -48,10 +48,36 @@ public static class AndroidDiagnostics
             }
 
             ShowToast("GPU: " + SystemInfo.graphicsDeviceName);
-            yield return new WaitForSeconds(4f);
+            yield return new WaitForSeconds(3f);
             ShowToast("API: " + SystemInfo.graphicsDeviceType);
-            yield return new WaitForSeconds(4f);
+            yield return new WaitForSeconds(3f);
             ShowToast("Shader: " + SystemInfo.graphicsShaderLevel);
+            yield return new WaitForSeconds(3f);
+            ShowDialog(info);
+        }
+
+        private void ShowDialog(string message)
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            try
+            {
+                using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+                using (var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+                using (var builderClass = new AndroidJavaClass("android.app.AlertDialog$Builder"))
+                using (var builder = new AndroidJavaObject("android.app.AlertDialog$Builder", activity))
+                {
+                    builder.Call<AndroidJavaObject>("setTitle", "Android Graphics Diagnostics");
+                    builder.Call<AndroidJavaObject>("setMessage", message);
+                    builder.Call<AndroidJavaObject>("setPositiveButton", "OK", null);
+                    using (var dialog = builder.Call<AndroidJavaObject>("create"))
+                        dialog.Call("show");
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+#endif
         }
 
         private void ShowToast(string message)
