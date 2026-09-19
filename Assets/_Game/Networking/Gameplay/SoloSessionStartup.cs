@@ -56,6 +56,16 @@ namespace HowToSuck.Networking
         }
         private IEnumerator Start()
         {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            if (Bootstrap != null)
+            {
+                Bootstrap.DeferInitialization = false;
+                Bootstrap.SessionDriverProvider = null;
+                Bootstrap.InitializeNow();
+            }
+            enabled = false;
+            yield break;
+#endif
             try
             {
                 // A prefab's direct self-reference remaps to its live instance.
