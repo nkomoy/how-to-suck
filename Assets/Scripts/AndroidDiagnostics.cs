@@ -39,7 +39,6 @@ public static class AndroidDiagnostics
             Debug.Log("=== BASIC CAMERA DIAGNOSTIC ===");
             Debug.Log("Camera rendered test color.");
 
-        {
             yield return new WaitForSeconds(2f);
 
             string info =
