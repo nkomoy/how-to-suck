@@ -29,7 +29,7 @@ jobs:
           unityVersion: auto
           targetPlatform: Android
           buildName: HowToSuck-Diagnostic
-          customParameters: -developmentBuild
+          customParameters: -developmentBuild -diagnostic
 
       - name: Upload diagnostic build and logs
         uses: actions/upload-artifact@v4
