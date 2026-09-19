@@ -1,0 +1,41 @@
+name: Android Diagnostic Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnostic-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Pull Git LFS
+        run: |
+          git lfs install
+          git lfs pull
+
+      - name: Build Android Development APK
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: auto
+          targetPlatform: Android
+          buildName: HowToSuck-Diagnostic
+          customParameters: -developmentBuild -allowDebugging -logFile build/UnityEditor.log
+
+      - name: Upload diagnostic build and logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: AndroidDiagnostic
+          path: |
+            build
+            /github/workspace/build
+          if-no-files-found: warn
