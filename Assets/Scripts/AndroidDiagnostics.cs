@@ -9,6 +9,7 @@ public static class AndroidDiagnostics
     private static void Initialize()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
+        if (!Array.Exists(Environment.GetCommandLineArgs(), x => x == "-diagnostic")) return;
         var go = new GameObject("AndroidDiagnostics");
         UnityEngine.Object.DontDestroyOnLoad(go);
         go.AddComponent<Runner>();
@@ -18,6 +19,26 @@ public static class AndroidDiagnostics
     private sealed class Runner : MonoBehaviour
     {
         private IEnumerator Start()
+        {
+            // Replace the game presentation with the simplest possible camera output.
+            foreach (var root in gameObject.scene.GetRootGameObjects())
+            {
+                if (root != gameObject)
+                    Destroy(root);
+            }
+
+            var camGo = new GameObject("DiagnosticCamera");
+            var cam = camGo.AddComponent<Camera>();
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.05f, 0.8f, 0.2f, 1f);
+            cam.depth = 1000;
+            camGo.transform.position = new Vector3(0, 0, -10);
+            Camera.main?.gameObject.SetActive(false);
+
+            yield return new WaitForEndOfFrame();
+            Debug.Log("=== BASIC CAMERA DIAGNOSTIC ===");
+            Debug.Log("Camera rendered test color.");
+
         {
             yield return new WaitForSeconds(2f);
 
